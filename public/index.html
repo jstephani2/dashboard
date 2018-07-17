@@ -1,0 +1,326 @@
+<!doctype html>
+<html>
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>App</title>
+    <link rel="stylesheet" <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css" integrity="sha384-Smlep5jCw/wG7hdkwQ/Z5nLIefveQRIY9nfy6xoR1uRYBtpZgI6339F5dgvm/e9B" crossorigin="anonymous">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0-alpha.1/handlebars.min.js"></script>
+    <script src="http://code.jquery.com/jquery-3.3.1.js"></script>
+
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/js/bootstrap.min.js" integrity="sha384-o+RDsa0aLu++PJvFqy8fFScvbHFLtbvScb8AjopnFD+iEQ7wo/CG0xlczd+2O/em" crossorigin="anonymous"></script>
+
+
+    <style type="text/css">
+    body {background-color: #262626;
+        color: #fff;}
+        #login, #loggedin {
+            display: none;
+        }
+        .text-overflow {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            width: 500px;
+        }
+        </style>
+
+    </head>
+
+    <body>
+        <div class="container-fluid">
+            <div id="login">
+                <h1>This is an example of the Authorization Code flow</h1>
+                <a href="/login" class="btn btn-primary">Log in with Spotify</a>
+            </div>
+            <div id="loggedin">
+                <div class="row">
+                    <div class="dropdown">
+                        <button class="btn btn-lg dropdown-toggle" style="background-color: #262626; color: #fff" type="button" id="menuDrop" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            select
+                        </button>
+                        <div class="dropdown-menu" style="background-color: #262626; color: #fff" aria-labelledby="menuDrop">
+                            <button class="dropdown-item" onclick="$('#now-playing').show(); $('#weather').hide(); $('#menuDrop').text('Spotify');" style="color: #fff">Spotify</button>
+                            <button class="dropdown-item" onclick="$('#now-playing').hide(); $('#weather').show(); getWeather(); $('#menuDrop').text('Dashboard');" style="color: #fff">Dashboard</button>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <h1 id="clock" class="text-right"></h1>
+                    </div>
+                </div>
+                <div id="now-playing">
+                </div>
+                <div class="row justify-content-center fixed-bottom pb-1">
+                    <img class="float-right p-1" src="rewind.png" style="height: 40px; width: 40px;" onclick="rewind();" id="rewind"></img>
+                    <img class="p-1" style="height: 40px; width: 40px;" onclick="playPause();" id="playpause"></img>
+                    <img class="float-left p-1" src="fast-forward.png" style="height: 40px; width: 40px;" onclick="fastForward();" id="fast-forward"></img>
+                </div>
+                <div id="user-profile">
+                </div>
+                <div id="weather" style="display:none;">
+                </div>
+                <div id="oauth">
+                </div>
+                <button style="display:none;" class="btn btn-default" id="obtain-new-token">Obtain new token using the refresh token</button>
+            </div>
+        </div>
+        <div id="templates"></div>
+
+        <script>
+        var voices, chosenVoice;
+        speechSynthesis.onvoiceschanged = function getVoices() {
+            voices = speechSynthesis.getVoices();
+            chosenVoice = voices.filter(function (voice) {
+                return voice.name == 'Google UK English Female';
+            })[0];
+            console.log(voices);
+        }
+        var u = new SpeechSynthesisUtterance();
+        u.voice = chosenVoice;
+        var progressTick;
+        var nowPlayingSource;
+        var userProfileSource;
+        var oauthSource;
+        $('#templates').load('/templates.html', function() {
+            nowPlayingSource = $('#now-playing-template').html(),
+            nowPlayingTemplate = Handlebars.compile(nowPlayingSource),
+            nowPlayingPlaceholder = document.getElementById('now-playing');
+            setInterval(function() {setClock();}, 1000);
+
+            weatherSource = $('#weather-template').html(),
+            weatherTemplate = Handlebars.compile(weatherSource),
+            weatherPlaceholder = document.getElementById('weather');
+
+            userProfileSource = document.getElementById('user-profile-template').innerHTML,
+            userProfileTemplate = Handlebars.compile(userProfileSource),
+            userProfilePlaceholder = document.getElementById('user-profile');
+
+            oauthSource = document.getElementById('oauth-template').innerHTML,
+            oauthTemplate = Handlebars.compile(oauthSource),
+            oauthPlaceholder = document.getElementById('oauth');
+        });
+
+        (function() {
+            /**
+            * Obtains parameters from the hash of the URL
+            * @return Object
+            */
+            function getHashParams() {
+                var hashParams = {};
+                var e, r = /([^&;=]+)=?([^&;]*)/g,
+                q = window.location.hash.substring(1);
+                while ( e = r.exec(q)) {
+                    hashParams[e[1]] = decodeURIComponent(e[2]);
+                }
+                return hashParams;
+            }
+
+            var params = getHashParams();
+
+            var access_token = params.access_token,
+            refresh_token = params.refresh_token,
+            error = params.error;
+
+            if (error) {
+                alert('There was an error during the authentication');
+            } else {
+                if (access_token) {
+                    // render oauth info
+
+                    $.ajax({
+                        url: 'https://api.spotify.com/v1/me/player/currently-playing',
+                        headers: {
+                            'Authorization': 'Bearer ' + access_token
+                        },
+                        success: function(response) {
+                            response['access_token'] = access_token;
+                            nowPlayingPlaceholder.innerHTML = nowPlayingTemplate(response);
+                            refreshState();
+                            setInterval(function() {refreshState();}, 5000);
+                            if (response.is_playing) {
+                                progressTick = setInterval(function() {tickProgressBar();}, 250);
+                                $("#progress").addClass('progress-bar-animated');
+                            } else {
+                                $("#progress").removeClass('progress-bar-animated');
+                            }
+                            console.log(response);
+                        }
+                    });
+
+                    $.ajax({
+                        url: 'https://api.spotify.com/v1/me',
+                        headers: {
+                            'Authorization': 'Bearer ' + access_token
+                        },
+                        success: function(response) {
+
+                            $('#login').hide();
+                            $('#loggedin').show();
+                        }
+                    });
+                } else {
+                    // render initial screen
+                    $('#login').show();
+                    $('#loggedin').hide();
+                }
+
+                document.getElementById('obtain-new-token').addEventListener('click', function() {
+                    $.ajax({
+                        url: '/refresh_token',
+                        data: {
+                            'refresh_token': refresh_token
+                        }
+                    }).done(function(data) {
+                        access_token = data.access_token;
+                        oauthPlaceholder.innerHTML = oauthTemplate({
+                            access_token: access_token,
+                            refresh_token: refresh_token
+                        });
+                    });
+                }, false);
+            }
+        })();
+
+        function playPause() {
+            if ($("#isPlaying").val() == 'true') {
+                $.ajax({
+                    type: 'PUT',
+                    url: 'https://api.spotify.com/v1/me/player/pause',
+                    headers: {
+                        'Authorization': 'Bearer ' + $("#access_token").val()
+                    },
+                    success:function(response) {
+                        $("#playpause").attr('src', 'play.png');
+                        $("#isPlaying").val('false');
+                        $("#progress").removeClass('progress-bar-animated');
+                        clearInterval(progressTick);
+                    }
+                });
+            } else {
+                $.ajax({
+                    type: 'PUT',
+                    url: 'https://api.spotify.com/v1/me/player/play',
+                    headers: {
+                        'Authorization': 'Bearer ' + $("#access_token").val()
+                    },
+                    success:function(response) {
+                        $("#playpause").attr('src','pause.png');
+                        $("#isPlaying").val('true');
+                        $("#progress").addClass('progress-bar-animated');
+                        progressTick = setInterval(function() {tickProgressBar();}, 250);
+                    }
+                });
+            }
+        }
+
+        function refreshState() {
+            $.ajax({
+                url: 'https://api.spotify.com/v1/me/player/currently-playing',
+                headers: {
+                    'Authorization': 'Bearer ' + $("#access_token").val()
+                },
+                success: function(response) {
+                    $("#song-title").text(response.item.name);
+                    $("#song-title-2").text(response.item.name);
+                    var artistString = "";
+                    for (var i = 0; i < response.item.artists.length - 1; i++) {
+                        artistString = artistString.concat(response.item.artists[i].name);
+                        artistString = artistString.concat(", ");
+                    }
+                    artistString =  artistString.concat(response.item.artists[response.item.artists.length - 1].name);
+                    $("#artist").text(artistString);
+                    $("#album-art").attr('src', response.item.album.images[0].url);
+                    if (response.is_playing) {
+                        $("#playpause").attr('src','pause.png');
+                        $("#isPlaying").val('true');
+                        $("#progress").addClass('progress-bar-animated');
+                    } else {
+                        $("#playpause").attr('src', 'play.png');
+                        $("#isPlaying").val('false');
+                        $("#progress").removeClass('progress-bar-animated');
+                    }
+                    $("#currentProgress").val(response.progress_ms);
+                    $("#duration").val(response.item.duration_ms);
+                    $("#progress").attr('style', "width: " + (response.progress_ms/response.item.duration_ms)*100 + "%");
+                },
+                error: function() {
+                    nothingPlaying();
+                }
+            }).fail(function() {
+                nothingPlaying();
+            });
+        }
+
+        function nothingPlaying() {
+            $("#album-art").hide();
+            $("#song-title").text('Nothing is Playing');
+        }
+
+        function tickProgressBar() {
+            if($("#isPlaying")) {
+                if((parseInt($("#currentProgress").val()) + 250) <= parseInt($("#duration").val())) {
+                    $("#currentProgress").val(parseInt($("#currentProgress").val()) + 250);
+                    $("#progress").attr('style', "width: " + ($("#currentProgress").val()/$("#duration").val())*100 + "%");
+                }
+            }
+        }
+
+        function fastForward() {
+            $.ajax({
+                type: 'POST',
+                url: 'https://api.spotify.com/v1/me/player/next',
+                headers: {
+                    'Authorization': 'Bearer ' + $("#access_token").val()
+                },
+                success: function(response) {
+                    setTimeout(function() {refreshState();}, 250);
+                }
+            });
+        }
+
+        function rewind() {
+            $.ajax({
+                type: 'POST',
+                url: 'https://api.spotify.com/v1/me/player/previous',
+                headers: {
+                    'Authorization': 'Bearer ' + $("#access_token").val()
+                },
+                success: function(response) {
+                    setTimeout(function() {refreshState();}, 250);
+                }
+            });
+        }
+
+        function getWeather() {
+            $.ajax({
+                url: 'http://api.wunderground.com/api/b4815fdab0723cdd/conditions/q/WI/Fond_du_Lac.json',
+                success: function(response) {
+                    weatherPlaceholder.innerHTML = weatherTemplate({
+                    });
+                    $("#temp").text((response.current_observation.temp_f).toString() + "°F");
+                    $("#weather-pic").attr('src', response.current_observation.icon_url);
+                    console.log(response);
+                }
+            });
+        }
+
+        function setClock() {
+            var d = new Date();
+            var hours = d.getHours();
+            var mins = d.getMinutes();
+            var secs = d.getSeconds();
+            mins = ( mins < 10 ? "0" : "" ) + mins;
+            secs = ( secs < 10 ? "0" : "" ) + secs;
+            var timeOfDay = ( hours < 12 ) ? "AM" : "PM";
+            hours = ( hours > 12 ) ? hours - 12 : hours;
+            hours = ( hours == 0 ) ? 12 : hours;
+            var timeString = hours + ":" + mins + ":" + secs + " " + timeOfDay;
+            $("#clock").text(timeString);
+        }
+        </script>
+    </body>
+    </html>

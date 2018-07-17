@@ -1,0 +1,67 @@
+<script id="user-profile-template" type="text/x-handlebars-template">
+  <h1>Logged in as {{display_name}}</h1>
+  <div class="media">
+    <div class="pull-left">
+      <img class="media-object" width="150" src="{{images.0.url}}" />
+    </div>
+    <div class="media-body">
+      <dl class="dl-horizontal">
+        <dt>Display name</dt><dd class="clearfix">{{display_name}}</dd>
+        <dt>Id</dt><dd>{{id}}</dd>
+        <dt>Email</dt><dd>{{email}}</dd>
+        <dt>Spotify URI</dt><dd><a href="{{external_urls.spotify}}">{{external_urls.spotify}}</a></dd>
+        <dt>Link</dt><dd><a href="{{href}}">{{href}}</a></dd>
+        <dt>Profile Image</dt><dd class="clearfix"><a href="{{images.0.url}}">{{images.0.url}}</a></dd>
+        <dt>Country</dt><dd>{{country}}</dd>
+      </dl>
+    </div>
+  </div>
+</script>
+
+<script id="weather-template" type="text/x-handlebars-template">
+    <input type="hidden" id="conditions-text"/>
+    <div class="container-fluid">
+        <div class="row justify-content-start">
+            <div class="col-">
+                <img id="weather-pic" src="">
+            </div>
+            <div class="col-">
+                <h1 id="temp"></h1>
+            </div>
+        </div>
+    </div>
+    <div class="row pl-5 fixed-bottom pb-1">
+        <h3 class="pl-5 text-left" id="song-title-2"></h3>
+    </div>
+</script>
+
+<script id="now-playing-template" type="text/x-handlebars-template">
+    <input type="hidden" id="access_token" value="{{access_token}}"/>
+    <input type="hidden" id="isPlaying" value="{{is_playing}}"/>
+    <input type="hidden" id="currentProgress" value="{{progress_ms}}"/>
+    <input type="hidden" id="duration" value="{{duration_ms}}"/>
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col justify-content-center">
+                <img class="mx-auto d-block img-fluid" id="album-art"></img>
+                <h3 class="pt-3 text-center" id="song-title">{{item.name}}</h3>
+                <p class="lead text-center" id="artist">{{item.artists.0.name}}</p>
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped bg-success progress-bar-animated" role="progressbar" id="progress" style="width: 25%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <button style="display:none;" onclick="refreshState();">Refresh</button>
+</script>
+<script id="control-template" type="text/x-handlebars-template">
+  <button onclick="playPause();" id="playpause"></button>
+</script>
+
+<script id="oauth-template" type="text/x-handlebars-template">
+  <h2>oAuth info</h2>
+  <dl class="dl-horizontal">
+    <dt>Access token</dt><dd class="text-overflow">{{access_token}}</dd>
+    <dt>Refresh token</dt><dd class="text-overflow">{{refresh_token}}</dd>
+  </dl>
+</script>
