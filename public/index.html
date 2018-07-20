@@ -16,18 +16,38 @@
 
 
     <style type="text/css">
-    body {background-color: #262626;
-        color: #fff;}
-        #login, #loggedin {
+    body {
+        animation-duration: 30s;
+        animation-name: backgroundMove;
+        animation-direction: alternate;
+        animation-iteration-count: infinite;
+        background-blend-mode: multiply;
+        background-color: #a1a1a1;
+        background-size: cover;
+        text-shadow: 2px 2px 8px #000;
+        color: #fff;
+    }
+    #login, #loggedin {
             display: none;
         }
-        .text-overflow {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            width: 500px;
+    #bottom-div {
+        background-image: radial-gradient(rgba(255, 255, 255, 0.1), rgba(161, 161, 161, 0));
+    }
+    .text-overflow {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        width: 500px;
+    }
+    @keyframes backgroundMove {
+        from {
+            background-size: 100%;
         }
-        </style>
+        to {
+            background-size: 105%;
+        }
+    }
+    </style>
 
     </head>
 
@@ -38,26 +58,50 @@
                 <a href="/login" class="btn btn-primary">Log in with Spotify</a>
             </div>
             <div id="loggedin">
-                <div class="row">
-                    <div class="dropdown">
-                        <button class="btn btn-lg dropdown-toggle" style="background-color: #262626; color: #fff" type="button" id="menuDrop" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            select
-                        </button>
-                        <div class="dropdown-menu" style="background-color: #262626; color: #fff" aria-labelledby="menuDrop">
-                            <button class="dropdown-item" onclick="$('#now-playing').show(); $('#weather').hide(); $('#menuDrop').text('Spotify');" style="color: #fff">Spotify</button>
-                            <button class="dropdown-item" onclick="$('#now-playing').hide(); $('#weather').show(); getWeather(); $('#menuDrop').text('Dashboard');" style="color: #fff">Dashboard</button>
+                <div class="row justify-content-around">
+                    <div class="col">
+                        <div class="dropdown">
+                            <button class="btn btn-lg dropdown-toggle" style="background-color: #262626; color: #fff" type="button" id="menuDrop" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Spotify
+                            </button>
+                            <div class="dropdown-menu" style="background-color: #262626; color: #fff" aria-labelledby="menuDrop">
+                                <button class="dropdown-item" onclick="switchPage('spotify');" style="color: #fff">Spotify</button>
+                                <button class="dropdown-item" onclick="switchPage('dashboard');" style="color: #fff">Dashboard</button>
+                            </div>
                         </div>
                     </div>
+
+                        <div class="col pt-2">
+                            <input class="form-control" type="text" placeholder="Search Spotify">
+                        </div>
+
                     <div class="col">
                         <h1 id="clock" class="text-right"></h1>
                     </div>
                 </div>
                 <div id="now-playing">
                 </div>
-                <div class="row justify-content-center fixed-bottom pb-1">
-                    <img class="float-right p-1" src="rewind.png" style="height: 40px; width: 40px;" onclick="rewind();" id="rewind"></img>
-                    <img class="p-1" style="height: 40px; width: 40px;" onclick="playPause();" id="playpause"></img>
-                    <img class="float-left p-1" src="fast-forward.png" style="height: 40px; width: 40px;" onclick="fastForward();" id="fast-forward"></img>
+                <div id="bottom-div" class="d-flex row align-items-end justify-content-center fixed-bottom">
+                    <div id="song-info-bottom" class="col-5" style="display:none;">
+                        <div class="row- align-items-end">
+                            <div class="col-2 float-left pr-0">
+                                <img class="float-right" id="album-art-2" style="height: 80px; width: 80px;"></img>
+                            </div>
+                            <div class="col-10 float-right">
+                                <div class="row- pb-0">
+                                    <a class="text-left" id="song-title-2" style="font-size: x-large"></a>
+                                </div>
+                                <div class="row- pt-0">
+                                    <a id="artist-2"></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="controls-div" class="col- pb-2">
+                        <img class="p-1" src="rewind.png" style="height: 40px; width: 40px;" onclick="rewind();" id="rewind"></img>
+                        <img class="p-1" style="height: 40px; width: 40px;" onclick="playPause();" id="playpause"></img>
+                        <img class="p-1" src="fast-forward.png" style="height: 40px; width: 40px;" onclick="fastForward();" id="fast-forward"></img>
+                    </div>
                 </div>
                 <div id="user-profile">
                 </div>
@@ -81,6 +125,7 @@
         }
         var u = new SpeechSynthesisUtterance();
         u.voice = chosenVoice;
+        var queue = [];
         var progressTick;
         var nowPlayingSource;
         var userProfileSource;
@@ -129,18 +174,17 @@
                 alert('There was an error during the authentication');
             } else {
                 if (access_token) {
-                    // render oauth info
-
                     $.ajax({
                         url: 'https://api.spotify.com/v1/me/player/currently-playing',
                         headers: {
                             'Authorization': 'Bearer ' + access_token
                         },
                         success: function(response) {
+                            if (response != null) {
                             response['access_token'] = access_token;
+                            response['refresh_token'] = refresh_token;
                             nowPlayingPlaceholder.innerHTML = nowPlayingTemplate(response);
                             refreshState();
-                            setInterval(function() {refreshState();}, 5000);
                             if (response.is_playing) {
                                 progressTick = setInterval(function() {tickProgressBar();}, 250);
                                 $("#progress").addClass('progress-bar-animated');
@@ -148,6 +192,15 @@
                                 $("#progress").removeClass('progress-bar-animated');
                             }
                             console.log(response);
+                        } else {
+                            nowPlayingPlaceholder.innerHTML = nowPlayingTemplate();
+                            $("#access_token").val(access_token);
+                            nothingPlaying();
+                        }
+                        setInterval(function() {refreshState();}, 5000);
+
+                        // Get new access token just before old one expires
+                        setInterval(function() {refreshAccessToken();}, 3500000);
                         }
                     });
 
@@ -184,6 +237,35 @@
                 }, false);
             }
         })();
+
+        function switchPage(page) {
+            if (page === 'spotify') {
+                $('#now-playing').show();
+                $('#weather').hide();
+                $('#menuDrop').text('Spotify');
+                $('#controls-div').removeClass('col-7');
+                $('#song-info-bottom').hide();
+            } else if (page === 'dashboard') {
+                $('#now-playing').hide();
+                $('#weather').show();
+                getWeather();
+                $('#menuDrop').text('Dashboard');
+                $('#song-info-bottom').show();
+                $('#controls-div').addClass('col-7');
+
+            }
+        }
+
+        function refreshAccessToken() {
+            $.ajax({
+                url: '/refresh_token',
+                data: {
+                    'refresh_token': $("#refresh_token").val().toString()
+                }
+            }).done(function(data) {
+                $("#access_token").val(data.access_token);
+            });
+        }
 
         function playPause() {
             if ($("#isPlaying").val() == 'true') {
@@ -224,28 +306,54 @@
                     'Authorization': 'Bearer ' + $("#access_token").val()
                 },
                 success: function(response) {
-                    $("#song-title").text(response.item.name);
-                    $("#song-title-2").text(response.item.name);
-                    var artistString = "";
-                    for (var i = 0; i < response.item.artists.length - 1; i++) {
-                        artistString = artistString.concat(response.item.artists[i].name);
-                        artistString = artistString.concat(", ");
-                    }
-                    artistString =  artistString.concat(response.item.artists[response.item.artists.length - 1].name);
-                    $("#artist").text(artistString);
-                    $("#album-art").attr('src', response.item.album.images[0].url);
-                    if (response.is_playing) {
-                        $("#playpause").attr('src','pause.png');
-                        $("#isPlaying").val('true');
-                        $("#progress").addClass('progress-bar-animated');
+                    if (response != null) {
+                        if ($("#song-title").text() != response.item.name) {
+                            $.ajax({
+                                url: 'https://api.spotify.com/v1/artists/' + response.item.artists[0].id,
+                                headers: {
+                                    'Authorization': 'Bearer ' + $("#access_token").val()
+                                },
+                                success: function(artist) {
+                                    console.log(artist.images[0].url);
+                                    $("body").css("background-image", "url('" + artist.images[0].url + "')");
+                                }
+                            })
+                        }
+                        $(".progress").show();
+                        $("#controls-div").show();
+                        $("#song-title").text(response.item.name);
+                        $("#song-title-2").text(response.item.name);
+                        var artistString = "";
+                        for (var i = 0; i < response.item.artists.length - 1; i++) {
+                            artistString = artistString.concat(response.item.artists[i].name);
+                            artistString = artistString.concat(", ");
+                        }
+                        artistString =  artistString.concat(response.item.artists[response.item.artists.length - 1].name);
+                        $("#artist").text(artistString);
+                        $("#artist-2").text(artistString);
+                        $("#album-art").attr('src', response.item.album.images[0].url);
+                        $("#album-art-2").attr('src', response.item.album.images[0].url);
+                        if (response.is_playing) {
+                            if (!progressTick) {
+                                progressTick = setInterval(function() {tickProgressBar();}, 250);
+                            }
+                            $("#playpause").attr('src','pause.png');
+                            $("#isPlaying").val('true');
+                            $("#progress").addClass('progress-bar-animated');
+                        } else {
+                            if (progressTick) {
+                                clearInterval(progressTick);
+                            }
+                            $("#playpause").attr('src', 'play.png');
+                            $("#isPlaying").val('false');
+                            $("#progress").removeClass('progress-bar-animated');
+                        }
+                        $("#currentProgress").val(response.progress_ms);
+                        $("#duration").val(response.item.duration_ms);
+                        $("#progress").attr('style', "width: " + (response.progress_ms/response.item.duration_ms)*100 + "%");
                     } else {
-                        $("#playpause").attr('src', 'play.png');
-                        $("#isPlaying").val('false');
-                        $("#progress").removeClass('progress-bar-animated');
+                        nothingPlaying();
                     }
-                    $("#currentProgress").val(response.progress_ms);
-                    $("#duration").val(response.item.duration_ms);
-                    $("#progress").attr('style', "width: " + (response.progress_ms/response.item.duration_ms)*100 + "%");
                 },
                 error: function() {
                     nothingPlaying();
@@ -256,8 +364,11 @@
         }
 
         function nothingPlaying() {
-            $("#album-art").hide();
             $("#song-title").text('Nothing is Playing');
+            $(".progress").hide();
+            $("#controls-div").hide();
+            $("#album-art").attr('src', '');
+            $("#artist").text('');
         }
 
         function tickProgressBar() {
@@ -269,6 +380,21 @@
             }
         }
 
+        function playSong(spotifyURI) {
+                $.ajax({
+                type: 'PUT',
+                url: 'https://api.spotify.com/v1/me/player/play',
+                data: JSON.stringify({ uris: [spotifyURI] }),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + $("#access_token").val()
+                },
+                success:function(response) {
+
+                }
+            });
+        }
+
         function fastForward() {
             $.ajax({
                 type: 'POST',
@@ -277,7 +403,7 @@
                     'Authorization': 'Bearer ' + $("#access_token").val()
                 },
                 success: function(response) {
-                    setTimeout(function() {refreshState();}, 250);
+                    setTimeout(function() {tickProgressBar();}, 250);
                 }
             });
         }
@@ -290,7 +416,7 @@
                     'Authorization': 'Bearer ' + $("#access_token").val()
                 },
                 success: function(response) {
-                    setTimeout(function() {refreshState();}, 250);
+                    setTimeout(function() {tickProgressBar();}, 250);
                 }
             });
         }

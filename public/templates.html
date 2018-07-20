@@ -37,18 +37,21 @@
 
 <script id="now-playing-template" type="text/x-handlebars-template">
     <input type="hidden" id="access_token" value="{{access_token}}"/>
+    <input type="hidden" id="refresh_token" value="{{refresh_token}}"/>
     <input type="hidden" id="isPlaying" value="{{is_playing}}"/>
     <input type="hidden" id="currentProgress" value="{{progress_ms}}"/>
     <input type="hidden" id="duration" value="{{duration_ms}}"/>
-    <div class="container-fluid">
-        <div class="row justify-content-center">
-            <div class="col justify-content-center">
-                <img class="mx-auto d-block img-fluid" id="album-art"></img>
-                <h3 class="pt-3 text-center" id="song-title">{{item.name}}</h3>
-                <p class="lead text-center" id="artist">{{item.artists.0.name}}</p>
-                <div class="progress">
-                    <div class="progress-bar progress-bar-striped bg-success progress-bar-animated" role="progressbar" id="progress" style="width: 25%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
+    <div class="container-fluid pt-5">
+        <div class="row">
+            <img class="shadow-lg mx-auto img-fluid" id="album-art"></img>
+            <div class="col">
+                <h1 class="pt-3" id="song-title">{{item.name}}</h1>
+                <p class="lead" id="artist">{{item.artists.0.name}}</p>
+            </div>
+        </div>
+        <div class="row-6 pt-5">
+            <div class="progress">
+                <div class="progress-bar progress-bar-striped bg-success progress-bar-animated" role="progressbar" id="progress" style="width: 25%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
             </div>
         </div>
     </div>
