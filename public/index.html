@@ -4,7 +4,7 @@
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>App</title>
+    <title>Spotify Player</title>
     <link rel="stylesheet" <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css" integrity="sha384-Smlep5jCw/wG7hdkwQ/Z5nLIefveQRIY9nfy6xoR1uRYBtpZgI6339F5dgvm/e9B" crossorigin="anonymous">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
@@ -98,9 +98,11 @@
                         </div>
                     </div>
                     <div id="controls-div" class="col- pb-2">
-                        <img class="p-1" src="rewind.png" style="height: 40px; width: 40px;" onclick="rewind();" id="rewind"></img>
-                        <img class="p-1" style="height: 40px; width: 40px;" onclick="playPause();" id="playpause"></img>
-                        <img class="p-1" src="fast-forward.png" style="height: 40px; width: 40px;" onclick="fastForward();" id="fast-forward"></img>
+                        <img class="p-1" src="rewind.png" style="height: 40px; width: 40px;" onclick="rewind();"
+                             onmouseover="this.src='rewind-invert.png';" onmouseout="this.src='rewind.png';" id="rewind"></img>
+                        <img class="p-1" style="height: 40px; width: 40px;" onclick="playPause();" id="playpause" onmouseover="playPauseHover(this)"></img>
+                        <img class="p-1" src="fast-forward.png" style="height: 40px; width: 40px;" onclick="fastForward();"
+                             onmouseover="this.src='fast-forward-invert.png';" onmouseout="this.src='fast-forward.png';" id="fast-forward"></img>
                     </div>
                 </div>
                 <div id="user-profile">
@@ -197,7 +199,7 @@
                             $("#access_token").val(access_token);
                             nothingPlaying();
                         }
-                        setInterval(function() {refreshState();}, 5000);
+                        setInterval(function() {refreshState();}, 1000);
 
                         // Get new access token just before old one expires
                         setInterval(function() {refreshAccessToken();}, 3500000);
@@ -297,6 +299,14 @@
                     }
                 });
             }
+        }
+
+        function playPauseHover(elem) {
+            var id = elem.id;
+            console.log('playpause element id = ' + id);
+
+            var imgsrc = elem.src;
+            console.log('playpause element src = ' + src);
         }
 
         function refreshState() {
