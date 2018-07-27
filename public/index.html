@@ -52,12 +52,12 @@
     </head>
 
     <body>
-        <div class="container-fluid">
+        <div id="main-div" class="container-fluid row w-100">
             <div id="login">
                 <h1>This is an example of the Authorization Code flow</h1>
                 <a href="/login" class="btn btn-primary">Log in with Spotify</a>
             </div>
-            <div id="loggedin">
+            <div id="loggedin" class="w-100">
                 <div class="row justify-content-around">
                     <div class="col">
                         <div class="dropdown">
@@ -71,8 +71,11 @@
                         </div>
                     </div>
 
-                        <div class="col pt-2">
-                            <input class="form-control" type="text" placeholder="Search Spotify">
+                        <div class="col pt-2 form-group">
+                            <input id="spotify-search" class="form-control" type="text" placeholder="Search Spotify" onsubmit="spotifySearch($(this).val());">
+                        </div>
+                        <div class="col pt-2 float-left pl-0">
+                            <button class="btn bg-dark float-left text-white" type="submit" for="spotify-search" onclick="spotifySearch($('#spotify-search').val());">Search</button>
                         </div>
 
                     <div class="col">
@@ -111,6 +114,10 @@
                 </div>
                 <button style="display:none;" class="btn btn-default" id="obtain-new-token">Obtain new token using the refresh token</button>
             </div>
+            <div id="popout-div" class="container-fluid pr-0 d-none">
+                <div class="list-group popout-list">
+                </div>
+            </div>
         </div>
         <div id="templates"></div>
 
@@ -130,6 +137,7 @@
         var nowPlayingSource;
         var userProfileSource;
         var oauthSource;
+        var searchSource;
         $('#templates').load('/templates.html', function() {
             nowPlayingSource = $('#now-playing-template').html(),
             nowPlayingTemplate = Handlebars.compile(nowPlayingSource),
@@ -139,6 +147,9 @@
             weatherSource = $('#weather-template').html(),
             weatherTemplate = Handlebars.compile(weatherSource),
             weatherPlaceholder = document.getElementById('weather');
+
+            searchSource = $('#search-result').html(),
+            searchTemplate = Handlebars.compile(searchSource);
 
             userProfileSource = document.getElementById('user-profile-template').innerHTML,
             userProfileTemplate = Handlebars.compile(userProfileSource),
@@ -237,6 +248,34 @@
                 }, false);
             }
         })();
+
+        function spotifySearch(query) {
+            query = query.replace(' ', '%20');
+            query = query.concat('&type=track');
+            $.ajax({
+                url: 'https://api.spotify.com/v1/search?q=' + query,
+                headers: {
+                    'Authorization': 'Bearer ' + $("#access_token").val()
+                },
+                success: function(response) {
+                    if ($("#popout-div").is(":hidden")) {
+                        togglePopout();
+                    }
+                    var elementList = $(".popout-header");
+                    if (elementList.length != 0) {
+                        $(".popout-button").remove();
+                    }
+                    for (var i = 0; i < response.tracks.items.length; i++) {
+                        $(".popout-list").append(searchTemplate({
+                            i: i,
+                            title: response.tracks.items[i].name,
+                            artist: response.tracks.items[i].artists[0].name
+                        }));
+                    }
+                    console.log(response);
+                }
+            });
+        }
 
         function switchPage(page) {
             if (page === 'spotify') {
@@ -361,6 +400,11 @@
             }).fail(function() {
                 nothingPlaying();
             });
+        }
+
+        function togglePopout() {
+            $("#loggedin").toggleClass('col-10');
+            $("#popout-div").toggleClass('col-2 d-none');
         }
 
         function nothingPlaying() {

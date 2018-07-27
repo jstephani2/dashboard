@@ -35,6 +35,23 @@
     </div>
 </script>
 
+<script id="queue-template" type="text/x-handlebars-template">
+
+</script>
+
+<script id="search-template" type="text/x-handlebars-template">
+
+</script>
+
+<script id="search-result" type="text/x-handlebars-template">
+    <button class="popout-button list-group-item flex-column align-items-start bg-dark text-left">
+        <div class="d-flex w-100 text-white">
+            <h5 id="popout-header{{i}}" class="mb-1 popout-header">{{title}}</h5>
+        </div>
+        <p class="text-white-50">{{artist}}</p>
+    </button>
+</script>
+
 <script id="now-playing-template" type="text/x-handlebars-template">
     <input type="hidden" id="access_token" value="{{access_token}}"/>
     <input type="hidden" id="refresh_token" value="{{refresh_token}}"/>
