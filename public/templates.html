@@ -46,14 +46,14 @@
 
 <script id="search-result" type="text/x-handlebars-template">
     <div class="btn-group popout-btn-group" id="btn-group-{{i}}" role="group">
-        <button class="w-75 popout-button list-group-item align-items-start bg-dark text-left" onclick="playSong($('#URI-{{i}}').val());">
+        <button class="w-75 popout-button list-group-item align-items-start bg-dark text-left" style="font-size: 75%;" onclick="playSong($('#URI-{{i}}').val());">
             <input type="hidden" id="URI-{{i}}" value="{{uri}}" />
             <div class="d-flex w-100 text-white">
                 <h5 id="popout-header{{i}}" class="mb-1 popout-header">{{title}}</h5>
             </div>
             <p class="text-white-50" id="artist-{{i}}">{{artist}}</p>
         </button>
-        <button type="button" id="queue-button-{{i}}" class="list-group-item bg-dark text-left" onclick="queue.push({uri:'{{uri}}', title:'{{title}}', artist:'{{artist}}' });">Queue</button>
+        <button type="button" style="color: white; font-size: 300%;" id="queue-button-{{i}}" class="list-group-item bg-dark text-left" onclick="queue.push({uri:'{{uri}}', title:'{{title}}', artist:'{{artist}}' });">+</button>
     </div>
 </script>
 

@@ -70,9 +70,8 @@
                             </div>
                         </div>
                     </div>
-
                         <div class="col pt-2 form-group">
-                            <input id="spotify-search" class="form-control" type="text" placeholder="Search Spotify" onsubmit="spotifySearch($(this).val());">
+                            <input id="spotify-search" class="form-control" onkeypress="" type="text" placeholder="Search Spotify" onsubmit="spotifySearch($(this).val());">
                         </div>
                         <div class="col pt-2 float-left pl-0">
                             <button class="btn bg-dark float-left text-white" type="submit" for="spotify-search" onclick="spotifySearch($('#spotify-search').val());">Search</button>
@@ -106,7 +105,7 @@
                         <img class="p-1" style="height: 40px; width: 40px;" onclick="playPause();" id="playpause" onmouseover="playPauseHover('enter')" onmouseout="playPauseHover('exit')"></img>
                         <img class="p-1" src="fast-forward.png" style="height: 40px; width: 40px;" onclick="nextSong();"
                              onmouseover="this.src='fast-forward-invert.png';" onmouseout="this.src='fast-forward.png';" id="fast-forward"></img>
-                             <button onclick="showQueue();">Show Queue</button>
+                             <button type="button" class="btn btn-dark" style="padding-left: 10px" onclick="showQueue();">Show Queue</button>
                     </div>
                 </div>
                 <div id="user-profile">
