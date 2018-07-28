@@ -24,6 +24,7 @@
         background-blend-mode: multiply;
         background-color: #a1a1a1;
         background-size: cover;
+        background-attachment: fixed;
         text-shadow: 2px 2px 8px #000;
         color: #fff;
     }
@@ -31,7 +32,6 @@
             display: none;
         }
     #bottom-div {
-        background-image: radial-gradient(rgba(255, 255, 255, 0.1), rgba(161, 161, 161, 0));
     }
     .text-overflow {
         overflow: hidden;
@@ -57,7 +57,7 @@
                 <h1>This is an example of the Authorization Code flow</h1>
                 <a href="/login" class="btn btn-primary">Log in with Spotify</a>
             </div>
-            <div id="loggedin" class="w-100">
+            <div id="loggedin" class="w-100 position-fixed">
                 <div class="row justify-content-around">
                     <div class="col">
                         <div class="dropdown" style="padding-top: 4px">
@@ -116,7 +116,7 @@
                 </div>
                 <button style="display:none;" class="btn btn-default" id="obtain-new-token">Obtain new token using the refresh token</button>
             </div>
-            <div id="popout-div" class="container-fluid pr-0 d-none">
+            <div id="popout-div" class="container-fluid pr-0 d-none mr-0 float-right">
                 <div class="list-group popout-list">
                 </div>
             </div>
@@ -199,7 +199,7 @@
                             nowPlayingPlaceholder.innerHTML = nowPlayingTemplate(response);
                             refreshState();
                             if (response.is_playing) {
-                                progressTick = setInterval(function() {tickProgressBar();}, 250);
+                                progressTick = setInterval(function() {tickProgressBar();}, 50);
                                 $("#progress").addClass('progress-bar-animated');
                             } else {
                                 $("#progress").removeClass('progress-bar-animated');
@@ -334,7 +334,7 @@
                         $("#playpause").attr('src','pause.png');
                         $("#isPlaying").val('true');
                         $("#progress").addClass('progress-bar-animated');
-                        progressTick = setInterval(function() {tickProgressBar();}, 250);
+                        progressTick = setInterval(function() {tickProgressBar();}, 100);
                     }
                 });
             }
@@ -485,6 +485,21 @@
             var minutes = Math.floor(millis / 60000);
             var seconds = ((millis % 60000) / 1000).toFixed(0);
             return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
+        }
+
+        function imageResize() {
+          var image = document.getElementById('album-art');
+          var width = image.clientWidth;
+          if(width === 640) {
+            image.style.height = "320px";
+            image.style.width = "320px";
+          } else if(width === 320) {
+            image.style.height = "160px";
+            image.style.width = "160px";
+          } else if(width === 160) {
+            image.style.height = "640px";
+            image.style.width = "640px";
+          }
         }
 
         function rewind() {
