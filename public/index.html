@@ -83,12 +83,17 @@
                         </button>
                     </div>
                 </div>
-
-                <button type="button" id="playlistDrop" onclick="getPlaylists()">
-                    Playlist
-                </button>
-
             </div>
+
+            <div class="dropdown" style="padding-top: 4px">
+                <button class="btn btn-lg dropdown-toggle" style="background-color: #262626; color: #fff" type="button" id="playlistDrop" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" onclick="getPlaylists()">
+                    Playlists
+                </button>
+                <div class="dropdown-menu" style="background-color: #262626; color #fff" aria-labelledby="playlistDrop">
+
+                </div>
+            </div>
+
             <div class="col pt-2 form-group">
                 <input id="spotify-search" class="form-control" onkeypress="" type="text" placeholder="Search Spotify"
                        onsubmit="spotifySearch($(this).val());">
