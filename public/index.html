@@ -86,10 +86,12 @@
             </div>
 
             <div class="dropdown" style="padding-top: 4px">
-                <button class="btn btn-lg dropdown-toggle" style="background-color: #262626; color: #fff" type="button" id="playlistDrop" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" onclick="getPlaylists()">
+                <button class="btn btn-lg dropdown-toggle" style="background-color: #262626; color: #fff" type="button"
+                        id="playlistDrop" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                        onclick="getPlaylists()">
                     Playlists
                 </button>
-                <div class="dropdown-menu" style="background-color: #262626; color #fff" aria-labelledby="playlistDrop">
+                <div class="dropdown-menu" style="background-color: #262626; color: #fff" aria-labelledby="playlistDrop">
 
                 </div>
             </div>
@@ -134,8 +136,12 @@
                 <img class="p-1" src="fast-forward.png" style="height: 40px; width: 40px;" onclick="nextSong();"
                      onmouseover="this.src='fast-forward-invert.png';" onmouseout="this.src='fast-forward.png';"
                      id="fast-forward"></img>
-                <button type="button" class="btn btn-dark" style="padding-left: 10px" onclick="showQueue();">Show
+                <button type="button" class="btn btn-dark" style="padding-left: 10px" onclick="showQueue();">
+                    Show
                     Queue
+                </button>
+                <button type="button" class="btn btn-dark" style="padding-left: 10px" onclick="clearQueue();">
+                    Clear Queue
                 </button>
             </div>
         </div>
@@ -294,6 +300,11 @@
 
     function addToQueue(uri, title, aritist) {
 
+    }
+
+    function clearQueue() {
+        queue = [];
+        showQueue();
     }
 
     function showQueue() {
@@ -624,6 +635,7 @@
             success: function (response) {
                 console.log(JSON.stringify(response));
                 //TODO Update Dropdown Playlist button dynamically
+                //https://stackoverflow.com/questions/1801499/how-to-change-options-of-select-with-jquery
 
             }
         })
