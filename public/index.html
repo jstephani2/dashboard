@@ -91,7 +91,8 @@
                         onclick="getPlaylists()">
                     Playlists
                 </button>
-                <div class="dropdown-menu" style="background-color: #262626; color: #fff" aria-labelledby="playlistDrop">
+                <div class="dropdown-menu" id="playlistDropMenu" style="background-color: #262626; color: #fff"
+                     aria-labelledby="playlistDrop">
 
                 </div>
             </div>
@@ -298,8 +299,8 @@
         }
     })();
 
-    function addToQueue(uri, title, aritist) {
-
+    function addToQueue(uri, title, artist) {
+        queue.push(uri,title,artist);
     }
 
     function clearQueue() {
@@ -604,7 +605,6 @@
 
         var newImageHeight = Math.floor((640 * percentageChange)) + "px";
         var newImageWidth = Math.floor((640 * percentageChange)) + "px";
-
         image.style.height = newImageHeight;
         image.style.width = newImageWidth;
 
@@ -632,24 +632,47 @@
             headers: {
                 'Authorization': 'Bearer ' + $("#access_token").val()
             },
-            success: function (response) {
-                console.log(JSON.stringify(response));
-                //TODO Update Dropdown Playlist button dynamically
-                //https://stackoverflow.com/questions/1801499/how-to-change-options-of-select-with-jquery
+            success: function (playlist_data) {
+                //console.log(JSON.stringify(response));
 
+                let dropdown = $('#playlistDropMenu');
+                dropdown.empty();
+
+                $.each(playlist_data.items, function (key, value) {
+                    dropdown.append($('<button></button>').val(value.uri).html(value.name).css({'color': '#fff','background-color': '#262626'}).addClass("dropdown-item").click(function() {
+                        addPlaylistTracksToQueue(value.owner.uri,value.uri)
+                    }));
+                });
             }
         })
     }
 
-    function getTracksFromPlaylist(user_id, playlist_id) {
+    function addPlaylistTracksToQueue(user_uri, playlist_uri) {
+        //console.log(user_uri);
+        //console.log(playlist_uri);
+
+        let indexUser = user_uri.lastIndexOf(':');
+        let user_id = user_uri.substring(indexUser + 1);
+
+        let indexPlaylist = playlist_uri.lastIndexOf(':');
+        let playlist_id = playlist_uri.substring(indexPlaylist + 1);
+
         $.ajax({
             type: 'GET',
             url: 'https://api.spotify.com/v1/users/' + user_id + '/playlists/' + playlist_id + '/tracks',
             headers: {
                 'Authorization': 'Bearer ' + $("#access_token").val()
             },
-            success: function (response) {
-                console.log(JSON.stringify(response));
+            success: function (track_data) {
+                //console.log(JSON.stringify(track_data));
+
+                // TODO Fix Add to queue input.
+                $.each(track_data.items, function (key,value) {
+                    addToQueue(value.track.uri,value.track.name,value.track.artists[0].name);
+                });
+
+                //TODO show queue?
+                showQueue();
             }
         })
     }
