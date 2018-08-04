@@ -100,8 +100,7 @@
             </div>
 
             <div class="col pt-2 form-group">
-                <input id="spotify-search" class="form-control" onkeypress="" type="text" placeholder="Search Spotify"
-                       onsubmit="spotifySearch($(this).val());">
+                <input id="spotify-search" class="form-control" type="text" placeholder="Search Spotify" onsubmit="spotifySearch($(this).val());">
             </div>
             <div class="col pt-2 float-left pl-0">
                 <button class="btn bg-dark float-left text-white" type="submit" for="spotify-search"
@@ -164,6 +163,14 @@
     </div>
 </div>
 <div id="templates"></div>
+
+<script>
+$("#spotify-search").keypress(function(event) {
+    if (event.which == 13) {
+        $("#spotify-search").submit();
+    }
+})
+</script>
 
 <script>
     var voices, chosenVoice;
