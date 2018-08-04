@@ -130,16 +130,15 @@
                 </div>
             </div>
             <div id="controls-div" class="col- pb-2">
-                <img class="p-1" src="rewind.png" style="height: 40px; width: 40px;" onclick="rewind();"
-                     onmouseover="this.src='rewind-invert.png';" onmouseout="this.src='rewind.png';" id="rewind"></img>
+                <img class="p-1" src="images/rewind.png" style="height: 40px; width: 40px;" onclick="rewind();"
+                     onmouseover="this.src='images/rewind-invert.png';" onmouseout="this.src='images/rewind.png';" id="rewind"></img>
                 <img class="p-1" style="height: 40px; width: 40px;" onclick="playPause();" id="playpause"
                      onmouseover="playPauseHover('enter')" onmouseout="playPauseHover('exit')"></img>
-                <img class="p-1" src="fast-forward.png" style="height: 40px; width: 40px;" onclick="nextSong();"
-                     onmouseover="this.src='fast-forward-invert.png';" onmouseout="this.src='fast-forward.png';"
+                <img class="p-1" src="images/fast-forward.png" style="height: 40px; width: 40px;" onclick="nextSong();"
+                     onmouseover="this.src='images/fast-forward-invert.png';" onmouseout="this.src='images/fast-forward.png';"
                      id="fast-forward"></img>
                 <button type="button" class="btn btn-dark" style="padding-left: 10px" onclick="showQueue();">
-                    Show
-                    Queue
+                    Show Queue
                 </button>
                 <button type="button" class="btn btn-dark" style="padding-left: 10px" onclick="clearQueue();">
                     Clear Queue
@@ -391,7 +390,7 @@
                     'Authorization': 'Bearer ' + $("#access_token").val()
                 },
                 success: function (response) {
-                    $("#playpause").attr('src', 'play.png');
+                    $("#playpause").attr('src', 'images/play.png');
                     $("#isPlaying").val('false');
                     $("#progress").removeClass('progress-bar-animated');
                     clearInterval(progressTick);
@@ -405,7 +404,7 @@
                     'Authorization': 'Bearer ' + $("#access_token").val()
                 },
                 success: function (response) {
-                    $("#playpause").attr('src', 'pause.png');
+                    $("#playpause").attr('src', 'images/pause.png');
                     $("#isPlaying").val('true');
                     $("#progress").addClass('progress-bar-animated');
                     progressTick = setInterval(function () {
@@ -420,16 +419,16 @@
         var elem = document.getElementById("playpause")
         var imgsrc = elem.getAttribute("src");
         if (status === "enter") {
-            if (imgsrc === "pause.png") {
-                elem.src = "pause-invert.png";
-            } else if (imgsrc === "play.png") {
-                elem.src = "play-invert.png";
+            if (imgsrc === "images/pause.png") {
+                elem.src = "images/pause-invert.png";
+            } else if (imgsrc === "images/play.png") {
+                elem.src = "images/play-invert.png";
             }
         } else if (status === "exit") {
-            if (imgsrc === "pause-invert.png") {
-                elem.src = "pause.png";
-            } else if (imgsrc === "play-invert.png") {
-                elem.src = "play.png";
+            if (imgsrc === "images/pause-invert.png") {
+                elem.src = "images/pause.png";
+            } else if (imgsrc === "images/play-invert.png") {
+                elem.src = "images/play.png";
             }
         }
     }
@@ -474,10 +473,10 @@
                                 tickProgressBar();
                             }, 50);
                         }
-                        if ($("#playpause").attr('src') === 'pause-invert.png') {
-                            $("#playpause").attr('src', 'pause-invert.png')
+                        if ($("#playpause").attr('src') === 'images/pause-invert.png') {
+                            $("#playpause").attr('src', 'images/pause-invert.png')
                         } else {
-                            $("#playpause").attr('src', 'pause.png');
+                            $("#playpause").attr('src', 'images/pause.png');
                         }
                         $("#isPlaying").val('true');
                         $("#progress").addClass('progress-bar-animated');
@@ -485,10 +484,10 @@
                         if (progressTick) {
                             clearInterval(progressTick);
                         }
-                        if ($("#playpause").attr('src') === 'play-invert.png') {
-                            $("#playpause").attr('src', 'play-invert.png')
+                        if ($("#playpause").attr('src') === 'images/play-invert.png') {
+                            $("#playpause").attr('src', 'images/play-invert.png')
                         } else {
-                            $("#playpause").attr('src', 'play.png');
+                            $("#playpause").attr('src', 'images/play.png');
                         }
                         $("#isPlaying").val('false');
                         $("#progress").removeClass('progress-bar-animated');
