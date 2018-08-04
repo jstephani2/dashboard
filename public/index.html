@@ -57,6 +57,15 @@
                 background-size: 105%;
             }
         }
+
+        #arrows_queue {
+            padding-bottom: 6px;
+            padding-right: 6px;
+            position: fixed;
+            bottom: 0;
+            right: 0;
+        }
+
     </style>
 
 </head>
@@ -81,13 +90,15 @@
                              aria-labelledby="menuDrop">
                             <button class="dropdown-item" onclick="switchPage('spotify');" style="color: #fff">Spotify
                             </button>
-                            <button class="dropdown-item" onclick="switchPage('dashboard');" style="color: #fff">Dashboard
+                            <button class="dropdown-item" onclick="switchPage('dashboard');" style="color: #fff">
+                                Dashboard
                             </button>
                         </div>
                     </div>
 
                     <div class="dropdown" style="padding-top: 4px">
-                        <button class="btn btn-lg dropdown-toggle" style="background-color: #262626; color: #fff" type="button"
+                        <button class="btn btn-lg dropdown-toggle" style="background-color: #262626; color: #fff"
+                                type="button"
                                 id="playlistDrop" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
                                 onclick="getPlaylists()">
                             Playlists
@@ -140,12 +151,15 @@
                 onmouseover="this.src='images/fast-forward-invert.png';" onmouseout="this.src='images/fast-forward.png';"
                 id="fast-forward"></img>
                 <button id="shuffle" type="button" class="btn btn-dark" onclick="toggleShuffle();">Shuffle</button>
-                <button type="button" class="btn btn-dark" style="padding-left: 10px" onclick="showQueue();">
+                <button type="button" id="showQueueButton" class="btn btn-dark" style="padding-left: 10px; display: none" onclick="showQueue();">
                     Show Queue
                 </button>
-                <button type="button" class="btn btn-dark" style="padding-left: 10px" onclick="clearQueue();">
+                <button type="button" id="clearQueueButton" class="btn btn-dark" style="padding-left: 10px; display: none" onclick="clearQueue();">
                     Clear Queue
                 </button>
+            </div>
+            <div style="height: 48px">
+                <input type="image" id="arrows_queue" src="images/arrows.png" onclick="queueButtonToggle()"/>
             </div>
         </div>
         <div id="user-profile">
@@ -320,18 +334,6 @@ $("#spotify-search").keypress(function(event) {
         showQueue();
     }
 
-    function toggleShuffle() {
-        if ($("#shuffle").text() == "Shuffle") {
-            $("#shuffle").text("Unshuffle");
-            queue.sort(function(a,b){return 0.5 - Math.random()});
-            showQueue();
-        } else {
-            $("#shuffle").text("Shuffle");
-            queue = backupQueue.slice(0);
-            showQueue();
-        }
-    }
-
     function showQueue() {
         if ($("#popout-div").is(":hidden")) {
             createPopoutElements(queue.length);
@@ -354,6 +356,32 @@ $("#spotify-search").keypress(function(event) {
             togglePopout();
         }
     }
+
+    function queueButtonToggle() {
+        if($("#showQueueButton").is(":hidden")) {
+            $("#showQueueButton").show();
+            $("#clearQueueButton").show();
+        } else {
+            $("#showQueueButton").hide();
+            $("#clearQueueButton").hide();
+        }
+
+    }
+
+    function toggleShuffle() {
+        if ($("#shuffle").text() == "Shuffle") {
+            $("#shuffle").text("Unshuffle");
+            queue.sort(function(a,b){return 0.5 - Math.random()});
+            showQueue();
+            showQueue();
+        } else {
+            $("#shuffle").text("Shuffle");
+            queue = backupQueue.slice(0);
+            showQueue();
+            showQueue();
+        }
+    }
+
 
     function createPopoutElements(num_to_create, response) {
         if (num_to_create != 0) {
@@ -683,8 +711,11 @@ $("#spotify-search").keypress(function(event) {
                 dropdown.empty();
 
                 $.each(playlist_data.items, function (key, value) {
-                    dropdown.append($('<button></button>').val(value.uri).html(value.name).css({'color': '#fff','background-color': '#262626'}).addClass("dropdown-item").click(function() {
-                        addPlaylistTracksToQueue(value.owner.uri,value.uri)
+                    dropdown.append($('<button></button>').val(value.uri).html(value.name).css({
+                        'color': '#fff',
+                        'background-color': '#262626'
+                    }).addClass("dropdown-item").click(function () {
+                        addPlaylistTracksToQueue(value.owner.uri, value.uri)
                     }));
                 });
             }
@@ -711,8 +742,8 @@ $("#spotify-search").keypress(function(event) {
                 //console.log(JSON.stringify(track_data));
 
                 // TODO Fix Add to queue input.
-                $.each(track_data.items, function (key,value) {
-                    addToQueue(value.track.uri,value.track.name,value.track.artists[0].name);
+                $.each(track_data.items, function (key, value) {
+                    addToQueue(value.track.uri, value.track.name, value.track.artists[0].name);
                 });
 
                 //TODO show queue?
