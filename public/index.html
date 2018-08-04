@@ -69,31 +69,33 @@
     <div id="loggedin" class="w-100 position-fixed px-3">
         <div class="row justify-content-around">
             <div class="col">
-                <div class="dropdown" style="padding-top: 4px">
-                    <button class="btn btn-lg dropdown-toggle" style="background-color: #262626; color: #fff"
-                            type="button" id="menuDrop" data-toggle="dropdown" aria-haspopup="true"
-                            aria-expanded="false">
-                        Spotify
-                    </button>
-                    <div class="dropdown-menu" style="background-color: #262626; color: #fff"
-                         aria-labelledby="menuDrop">
-                        <button class="dropdown-item" onclick="switchPage('spotify');" style="color: #fff">Spotify
+                <div class="row">
+                    <div class="dropdown pr-1" style="padding-top: 4px">
+                        <button class="btn btn-lg dropdown-toggle" style="background-color: #262626; color: #fff"
+                                type="button" id="menuDrop" data-toggle="dropdown" aria-haspopup="true"
+                                aria-expanded="false">
+                            Spotify
                         </button>
-                        <button class="dropdown-item" onclick="switchPage('dashboard');" style="color: #fff">Dashboard
-                        </button>
+                        <div class="dropdown-menu" style="background-color: #262626; color: #fff"
+                             aria-labelledby="menuDrop">
+                            <button class="dropdown-item" onclick="switchPage('spotify');" style="color: #fff">Spotify
+                            </button>
+                            <button class="dropdown-item" onclick="switchPage('dashboard');" style="color: #fff">Dashboard
+                            </button>
+                        </div>
                     </div>
-                </div>
-            </div>
 
-            <div class="dropdown" style="padding-top: 4px">
-                <button class="btn btn-lg dropdown-toggle" style="background-color: #262626; color: #fff" type="button"
-                        id="playlistDrop" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
-                        onclick="getPlaylists()">
-                    Playlists
-                </button>
-                <div class="dropdown-menu" id="playlistDropMenu" style="background-color: #262626; color: #fff"
-                     aria-labelledby="playlistDrop">
+                    <div class="dropdown" style="padding-top: 4px">
+                        <button class="btn btn-lg dropdown-toggle" style="background-color: #262626; color: #fff" type="button"
+                                id="playlistDrop" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                onclick="getPlaylists()">
+                            Playlists
+                        </button>
+                        <div class="dropdown-menu" id="playlistDropMenu" style="background-color: #262626; color: #fff"
+                             aria-labelledby="playlistDrop">
 
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -299,7 +301,7 @@
     })();
 
     function addToQueue(uri, title, artist) {
-        queue.push(uri,title,artist);
+        queue.push({'uri': uri,'title': title, 'artist': artist});
     }
 
     function clearQueue() {
@@ -308,6 +310,7 @@
     }
 
     function showQueue() {
+        createDropdownElements(queue.length);
         buttonList = $(".popout-button");
         for (var i in buttonList) {
             if (queue.length > i) {
@@ -319,8 +322,35 @@
                 $("#btn-group-" + i).hide();
             }
         }
+        if ($("#popout-div").is(":hidden")) {
+            $("#loggedin").toggleClass('col-10');
+            $("#popout-div").toggleClass('col-2 d-none');
+        }
         $(".popout-button").removeClass("w-75");
         $(".popout-button").addClass("w-100");
+    }
+
+    function createDropdownElements(num_to_create, response) {
+        if (num_to_create != 0) {
+            $(".popout-btn-group").remove();
+        }
+        for (var i = 0; i < num_to_create; i++) {
+            if (response) {
+                $(".popout-list").append(searchTemplate({
+                    i: i,
+                    title: response.tracks.items[i].name,
+                    artist: response.tracks.items[i].artists[0].name,
+                    uri: response.tracks.items[i].uri
+                }));
+            } else {
+                $(".popout-list").append(searchTemplate({
+                    i: i,
+                    title: queue[i].title,
+                    artist: queue[i].artist,
+                    uri: queue[i].uri
+                }));
+            }
+        }
     }
 
     function spotifySearch(query) {
@@ -336,17 +366,7 @@
                     togglePopout();
                 }
                 var elementList = $(".popout-header");
-                if (elementList.length != 0) {
-                    $(".popout-btn-group").remove();
-                }
-                for (var i = 0; i < response.tracks.items.length; i++) {
-                    $(".popout-list").append(searchTemplate({
-                        i: i,
-                        title: response.tracks.items[i].name,
-                        artist: response.tracks.items[i].artists[0].name,
-                        uri: response.tracks.items[i].uri
-                    }));
-                }
+                createDropdownElements(response.tracks.items.length, response);
                 console.log(response);
             }
         });
