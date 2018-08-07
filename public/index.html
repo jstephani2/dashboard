@@ -39,6 +39,13 @@
             display: none;
         }
 
+        #login {
+            text-align: center;
+            margin-left: auto;
+            margin-right: auto;
+            padding-top: 10%;
+        }
+
         #bottom-div {
         }
 
@@ -73,7 +80,8 @@
 <body>
 <div id="main-div" class="container-fluid row w-100">
     <div id="login">
-        <h1>This is an example of the Authorization Code flow</h1>
+        <h1>Please Login with Spotify</h1>
+        <p style="padding-bottom: 20px"> Using the button below </p>
         <a href="/login" class="btn btn-primary">Log in with Spotify</a>
     </div>
     <div id="loggedin" class="w-100 position-fixed px-3">
@@ -92,6 +100,9 @@
                             </button>
                             <button class="dropdown-item" onclick="switchPage('dashboard');" style="color: #fff">
                                 Dashboard
+                            </button>
+                            <button class="dropdown-item" onclick="switchPage('logout');" style="color: #fff">
+                                Logout
                             </button>
                         </div>
                     </div>
@@ -440,6 +451,15 @@ $("#spotify-search").keypress(function(event) {
             $('#song-info-bottom').show();
             $('#controls-div').addClass('col-7');
 
+        } else if (page === 'logout') {
+            $('#now-playing').hide();
+            $('#weather').hide();
+            $('#song-info-bottom').hide();
+            $('#controls-div').removeClass('col-7');
+            $("#album-art").attr('src', '');
+            $('#album-art-2').attr('src','');
+            $('#loggedin').hide();
+            $('#login').show();
         }
     }
 
@@ -626,6 +646,7 @@ $("#spotify-search").keypress(function(event) {
     function nextSong() {
         if (queue.length > 0) {
             playSong(queue.shift().uri);
+            showQueue();
             showQueue();
         } else {
             $.ajax({
