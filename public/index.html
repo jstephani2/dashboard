@@ -70,6 +70,12 @@
             padding-right: 10px;
         }
 
+        #shuffle {
+            -ms-transform: scale(.8,.8) translateY(25px); /* IE 9 */
+            -webkit-transform: scale(.8,.8) translateY(25px); /* Safari */
+            transform: scale(.8,.8) translateY(25px); /* Standard syntax */
+        }
+
         @keyframes backgroundMove {
             from {
                 background-size: 100%;
@@ -139,7 +145,7 @@
             <div class="col-fluid">
                 <div class="row" style="padding-right: 30px">
                     <h1 id="clock" class="text-right"></h1>
-                    <input type="image" id="arrows_queue" src="images/arrows.png" onclick="showQueue();"/>
+                    <input type="image" id="arrows_queue" src="images/arrows.png" onclick="arrowQueue();"/>
                 </div>
             </div>
         </div>
@@ -171,7 +177,7 @@
                      onmouseover="this.src='images/fast-forward-invert.png';"
                      onmouseout="this.src='images/fast-forward.png';"
                      id="fast-forward"></img>
-                <button id="shuffle" type="button" class="btn btn-dark" onclick="toggleShuffle();">Shuffle</button>
+                <input type="image" id="shuffle" src="images/shuffle.png" onclick="toggleShuffle()">
             </div>
         </div>
         <div id="user-profile">
@@ -361,7 +367,12 @@
                 $("#artist-" + i).text(queue[i].artist);
                 $("#queue-button-" + i).hide();
             } else {
-                $("#btn-group-" + i).hide();
+                $(".popout-list").append(searchTemplate({
+                    i: i,
+                    title: response.tracks.items[i].name,
+                    artist: response.tracks.items[i].artists[0].name,
+                    uri: response.tracks.items[i].uri
+                }));
             }
         }
         $(".popout-button").removeClass("w-75");
@@ -380,9 +391,37 @@
         $("#popout-div").addClass('d-none');
     }
 
+    function arrowQueue() {
+        if ($("#popout-div").is(":hidden")) {
+            showPopout();
+            $("#arrows_queue").css({
+                'transform': 'rotate(180deg) translateY(-10px)',
+                'max-width': '36px',
+                'max-height': '36px',
+                'width': '36px',
+                'height': '36px',
+                '-ms-transform': 'rotate(180deg) translateY(-10px)',
+                '-webkit-transform': 'rotate(180deg) translateY(-10px)',
+            });
+        } else {
+            hidePopout();
+            $("#arrows_queue").css({
+                'transform': 'rotate(0deg) translateY(10px)',
+                'max-width': '36px',
+                'max-height': '36px',
+                'width': '36px',
+                'height': '36px',
+                '-ms-transform': 'rotate(0deg) translateY(10px)',
+                '-webkit-transform': 'rotate(0deg) translateY(10px)',
+            });
+        }
+    }
+
     function toggleShuffle() {
-        if ($("#shuffle").text() == "Shuffle") {
-            $("#shuffle").text("Unshuffle");
+        var elem = document.getElementById("shuffle");
+        var imgsrc = elem.getAttribute("src");
+        if (imgsrc === "images/shuffle.png") {
+            elem.src = "images/shuffle-invert.png";
             queue.sort(function (a, b) {
                 return 0.5 - Math.random()
             });
@@ -391,10 +430,11 @@
             queue.sort(function(a,b){return 0.5 - Math.random()});
             refreshQueue();
         } else {
-            $("#shuffle").text("Shuffle");
+            elem.src = "images/shuffle.png";
             queue = backupQueue.slice(0);
             refreshQueue();
         }
+
     }
 
 
@@ -513,7 +553,7 @@
     }
 
     function playPauseHover(status) {
-        var elem = document.getElementById("playpause")
+        var elem = document.getElementById("playpause");
         var imgsrc = elem.getAttribute("src");
         if (status === "enter") {
             if (imgsrc === "images/pause.png") {
