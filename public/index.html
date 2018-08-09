@@ -342,7 +342,7 @@ $("#spotify-search").keypress(function(event) {
 
     function clearQueue() {
         queue = [];
-        showQueue();
+        refreshQueue();
     }
 
     function showQueue() {
@@ -387,20 +387,17 @@ $("#spotify-search").keypress(function(event) {
             $("#showQueueButton").hide();
             $("#clearQueueButton").hide();
         }
-
     }
 
     function toggleShuffle() {
         if ($("#shuffle").text() == "Shuffle") {
             $("#shuffle").text("Unshuffle");
             queue.sort(function(a,b){return 0.5 - Math.random()});
-            showQueue();
-            showQueue();
+            refreshQueue();
         } else {
             $("#shuffle").text("Shuffle");
             queue = backupQueue.slice(0);
-            showQueue();
-            showQueue();
+            refreshQueue();
         }
     }
 
@@ -634,7 +631,7 @@ $("#spotify-search").keypress(function(event) {
             } else if (queue.length > 0) {
                 playSong(queue.shift().uri);
                 $("#currentProgress").val("0");
-                showQueue();
+                refreshQueue();
             }
         }
     }
@@ -657,7 +654,7 @@ $("#spotify-search").keypress(function(event) {
     function nextSong() {
         if (queue.length > 0) {
             playSong(queue.shift().uri);
-            showQueue();
+            refreshQueue();
         } else {
             $.ajax({
                 type: 'POST',
