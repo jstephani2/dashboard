@@ -57,6 +57,26 @@
             width: 500px;
         }
 
+        #arrows_queue {
+            max-width: 36px;
+            max-height: 36px;
+            width: 36px;
+            height: 36px;
+            -ms-transform: translateY(10px); /* IE 9 */
+            -webkit-transform: translateY(10px); /* Safari */
+            transform: translateY(10px); /* Standard syntax */
+        }
+
+        #clock {
+            padding-right: 10px;
+        }
+
+        #shuffle {
+            -ms-transform: scale(.8,.8) translateY(25px); /* IE 9 */
+            -webkit-transform: scale(.8,.8) translateY(25px); /* Safari */
+            transform: scale(.8,.8) translateY(25px); /* Standard syntax */
+        }
+
         @keyframes backgroundMove {
             from {
                 background-size: 100%;
@@ -64,14 +84,6 @@
             to {
                 background-size: 105%;
             }
-        }
-
-        #arrows_queue {
-            padding-bottom: 6px;
-            padding-right: 6px;
-            position: fixed;
-            bottom: 0;
-            right: 0;
         }
 
     </style>
@@ -131,9 +143,11 @@
                         onclick="spotifySearch($('#spotify-search').val());">Search
                 </button>
             </div>
-
-            <div class="col">
-                <h1 id="clock" class="text-right"></h1>
+            <div class="col-fluid">
+                <div class="row" style="padding-right: 30px">
+                    <h1 id="clock" class="text-right"></h1>
+                    <input type="image" id="arrows_queue" src="images/arrows.png" onclick="arrowQueue();"/>
+                </div>
             </div>
         </div>
         <div id="now-playing">
@@ -156,22 +170,15 @@
             </div>
             <div id="controls-div" class="col- pb-2">
                 <img class="p-1" src="images/rewind.png" style="height: 40px; width: 40px;" onclick="rewind();"
-                     onmouseover="this.src='images/rewind-invert.png';" onmouseout="this.src='images/rewind.png';" id="rewind"></img>
+                     onmouseover="this.src='images/rewind-invert.png';" onmouseout="this.src='images/rewind.png';"
+                     id="rewind"></img>
                 <img class="p-1" style="height: 40px; width: 40px;" onclick="playPause();" id="playpause"
                      onmouseover="playPauseHover('enter')" onmouseout="playPauseHover('exit')"></img>
                 <img class="p-1" src="images/fast-forward.png" style="height: 40px; width: 40px;" onclick="nextSong();"
-                onmouseover="this.src='images/fast-forward-invert.png';" onmouseout="this.src='images/fast-forward.png';"
-                id="fast-forward"></img>
-                <button id="shuffle" type="button" class="btn btn-dark" onclick="toggleShuffle();">Shuffle</button>
-                <button type="button" id="showQueueButton" class="btn btn-dark" style="padding-left: 10px; display: none" onclick="showQueue();">
-                    Show Queue
-                </button>
-                <button type="button" id="clearQueueButton" class="btn btn-dark" style="padding-left: 10px; display: none" onclick="clearQueue();">
-                    Clear Queue
-                </button>
-            </div>
-            <div style="height: 48px">
-                <input type="image" id="arrows_queue" src="images/arrows.png" onclick="queueButtonToggle()"/>
+                     onmouseover="this.src='images/fast-forward-invert.png';"
+                     onmouseout="this.src='images/fast-forward.png';"
+                     id="fast-forward"></img>
+                <input type="image" id="shuffle" src="images/shuffle.png" onclick="toggleShuffle()">
             </div>
         </div>
         <div id="user-profile">
@@ -192,11 +199,11 @@
 <div id="templates"></div>
 
 <script>
-$("#spotify-search").keypress(function(event) {
-    if (event.which == 13) {
-        $("#spotify-search").submit();
-    }
-})
+    $("#spotify-search").keypress(function (event) {
+        if (event.which == 13) {
+            $("#spotify-search").submit();
+        }
+    })
 </script>
 
 <script>
@@ -335,8 +342,8 @@ $("#spotify-search").keypress(function(event) {
     })();
 
     function addToQueue(uri, title, artist) {
-        queue.push({'uri': uri,'title': title, 'artist': artist});
-        backupQueue.push({'uri': uri,'title': title, 'artist': artist});
+        queue.push({'uri': uri, 'title': title, 'artist': artist});
+        backupQueue.push({'uri': uri, 'title': title, 'artist': artist});
     }
 
     function clearQueue() {
@@ -372,7 +379,12 @@ $("#spotify-search").keypress(function(event) {
                 $("#artist-" + i).text(queue[i].artist);
                 $("#queue-button-" + i).hide();
             } else {
-                $("#btn-group-" + i).hide();
+                $(".popout-list").append(searchTemplate({
+                    i: i,
+                    title: response.tracks.items[i].name,
+                    artist: response.tracks.items[i].artists[0].name,
+                    uri: response.tracks.items[i].uri
+                }));
             }
         }
         $(".popout-button").removeClass("w-75");
@@ -391,26 +403,50 @@ $("#spotify-search").keypress(function(event) {
         $("#popout-div").addClass('d-none');
     }
 
-    function queueButtonToggle() {
-        if($("#showQueueButton").is(":hidden")) {
-            $("#showQueueButton").show();
-            $("#clearQueueButton").show();
+    function arrowQueue() {
+        if ($("#popout-div").is(":hidden")) {
+            showPopout();
+            $("#arrows_queue").css({
+                'transform': 'rotate(180deg) translateY(-10px)',
+                'max-width': '36px',
+                'max-height': '36px',
+                'width': '36px',
+                'height': '36px',
+                '-ms-transform': 'rotate(180deg) translateY(-10px)',
+                '-webkit-transform': 'rotate(180deg) translateY(-10px)',
+            });
         } else {
-            $("#showQueueButton").hide();
-            $("#clearQueueButton").hide();
+            hidePopout();
+            $("#arrows_queue").css({
+                'transform': 'rotate(0deg) translateY(10px)',
+                'max-width': '36px',
+                'max-height': '36px',
+                'width': '36px',
+                'height': '36px',
+                '-ms-transform': 'rotate(0deg) translateY(10px)',
+                '-webkit-transform': 'rotate(0deg) translateY(10px)',
+            });
         }
     }
 
     function toggleShuffle() {
-        if ($("#shuffle").text() == "Shuffle") {
-            $("#shuffle").text("Unshuffle");
+        var elem = document.getElementById("shuffle");
+        var imgsrc = elem.getAttribute("src");
+        if (imgsrc === "images/shuffle.png") {
+            elem.src = "images/shuffle-invert.png";
+            queue.sort(function (a, b) {
+                return 0.5 - Math.random()
+            });
+            showQueue();
+            showQueue();
             queue.sort(function(a,b){return 0.5 - Math.random()});
             refreshQueue();
         } else {
-            $("#shuffle").text("Shuffle");
+            elem.src = "images/shuffle.png";
             queue = backupQueue.slice(0);
             refreshQueue();
         }
+
     }
 
 
@@ -477,7 +513,7 @@ $("#spotify-search").keypress(function(event) {
             $('#song-info-bottom').hide();
             $('#controls-div').removeClass('col-7');
             $("#album-art").attr('src', '');
-            $('#album-art-2').attr('src','');
+            $('#album-art-2').attr('src', '');
             $('#loggedin').hide();
             $('#login').show();
         }
@@ -525,7 +561,7 @@ $("#spotify-search").keypress(function(event) {
     }
 
     function playPauseHover(status) {
-        var elem = document.getElementById("playpause")
+        var elem = document.getElementById("playpause");
         var imgsrc = elem.getAttribute("src");
         if (status === "enter") {
             if (imgsrc === "images/pause.png") {
