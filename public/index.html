@@ -20,6 +20,7 @@
             crossorigin="anonymous"></script>
 
     <link rel="icon" href="images/beer.png">
+    <link rel="stylesheet" href="style.css">
 
     <style type="text/css">
         body {
@@ -211,11 +212,12 @@ $("#spotify-search").keypress(function(event) {
     u.voice = chosenVoice;
     var queue = [];
     var backupQueue = [];
-    var progressTick;
     var nowPlayingSource;
     var userProfileSource;
     var oauthSource;
     var searchSource;
+    var refreshInterval;
+
     $('#templates').load('/templates.html', function () {
         nowPlayingSource = $('#now-playing-template').html(),
             nowPlayingTemplate = Handlebars.compile(nowPlayingSource),
@@ -275,11 +277,8 @@ $("#spotify-search").keypress(function(event) {
                             response['access_token'] = access_token;
                             response['refresh_token'] = refresh_token;
                             nowPlayingPlaceholder.innerHTML = nowPlayingTemplate(response);
-                            refreshState();
+                            refreshState(true);
                             if (response.is_playing) {
-                                progressTick = setInterval(function () {
-                                    tickProgressBar();
-                                }, 50);
                                 $("#progress").addClass('progress-bar-animated');
                             } else {
                                 $("#progress").removeClass('progress-bar-animated');
@@ -290,9 +289,9 @@ $("#spotify-search").keypress(function(event) {
                             $("#access_token").val(access_token);
                             nothingPlaying();
                         }
-                        setInterval(function () {
+                        refreshInterval = setInterval(function () {
                             refreshState();
-                        }, 500);
+                        }, 1000);
 
                         // Get new access token just before old one expires
                         setInterval(function () {
@@ -348,6 +347,19 @@ $("#spotify-search").keypress(function(event) {
     function showQueue() {
         refreshQueue();
         showPopout();
+    }
+
+    function setTrackPosition(percent) {
+        console.log(percent);
+        setTo = Math.floor($("#duration").val() * (percent/1000));
+        console.log(setTo);
+        $.ajax({
+            type: 'PUT',
+            url: "https://api.spotify.com/v1/me/player/seek?position_ms=" + setTo,
+            headers: {
+                'Authorization': 'Bearer ' + $("#access_token").val()
+            }
+        });
     }
 
     function refreshQueue() {
@@ -494,7 +506,6 @@ $("#spotify-search").keypress(function(event) {
                     $("#playpause").attr('src', 'images/play.png');
                     $("#isPlaying").val('false');
                     $("#progress").removeClass('progress-bar-animated');
-                    clearInterval(progressTick);
                 }
             });
         } else {
@@ -508,9 +519,6 @@ $("#spotify-search").keypress(function(event) {
                     $("#playpause").attr('src', 'images/pause.png');
                     $("#isPlaying").val('true');
                     $("#progress").addClass('progress-bar-animated');
-                    progressTick = setInterval(function () {
-                        tickProgressBar();
-                    }, 50);
                 }
             });
         }
@@ -534,7 +542,7 @@ $("#spotify-search").keypress(function(event) {
         }
     }
 
-    function refreshState() {
+    function refreshState(isFirstRequest) {
         $.ajax({
             url: 'https://api.spotify.com/v1/me/player/currently-playing',
             headers: {
@@ -542,7 +550,7 @@ $("#spotify-search").keypress(function(event) {
             },
             success: function (response) {
                 if (response != null) {
-                    if ($("#song-title").text() != response.item.name) {
+                    if ($("#song-title").text() != response.item.name || isFirstRequest) {
                         $.ajax({
                             url: 'https://api.spotify.com/v1/artists/' + response.item.artists[0].id,
                             headers: {
@@ -569,11 +577,6 @@ $("#spotify-search").keypress(function(event) {
                     $("#album-art").attr('src', response.item.album.images[0].url);
                     $("#album-art-2").attr('src', response.item.album.images[0].url);
                     if (response.is_playing) {
-                        if (!progressTick) {
-                            progressTick = setInterval(function () {
-                                tickProgressBar();
-                            }, 50);
-                        }
                         if ($("#playpause").attr('src') === 'images/pause-invert.png') {
                             $("#playpause").attr('src', 'images/pause-invert.png')
                         } else {
@@ -582,9 +585,6 @@ $("#spotify-search").keypress(function(event) {
                         $("#isPlaying").val('true');
                         $("#progress").addClass('progress-bar-animated');
                     } else {
-                        if (progressTick) {
-                            clearInterval(progressTick);
-                        }
                         if ($("#playpause").attr('src') === 'images/play-invert.png') {
                             $("#playpause").attr('src', 'images/play-invert.png')
                         } else {
@@ -595,6 +595,7 @@ $("#spotify-search").keypress(function(event) {
                     }
                     $("#currentProgress").val(response.progress_ms);
                     $("#duration").val(response.item.duration_ms);
+                    $("#progress-slider").val(($("#currentProgress").val()/$("#duration").val()) * 1000);
                     $("#duration-tab").text(millisToMinutesAndSeconds(response.progress_ms) + " / " + millisToMinutesAndSeconds(response.item.duration_ms));
                     $("#progress").attr('style', "width: " + (response.progress_ms / response.item.duration_ms) * 100 + "%");
                     imageResize();
@@ -623,18 +624,6 @@ $("#spotify-search").keypress(function(event) {
         $("#artist").text('');
     }
 
-    function tickProgressBar() {
-        if ($("#isPlaying")) {
-            if ((parseInt($("#currentProgress").val()) + 500) <= parseInt($("#duration").val())) {
-                $("#currentProgress").val(parseInt($("#currentProgress").val()) + 50);
-                $("#progress").attr('style', "width: " + ($("#currentProgress").val() / $("#duration").val()) * 100 + "%");
-            } else if (queue.length > 0) {
-                playSong(queue.shift().uri);
-                $("#currentProgress").val("0");
-                refreshQueue();
-            }
-        }
-    }
 
     function playSong(spotifyURI) {
         $.ajax({
@@ -663,9 +652,6 @@ $("#spotify-search").keypress(function(event) {
                     'Authorization': 'Bearer ' + $("#access_token").val()
                 },
                 success: function (response) {
-                    setTimeout(function () {
-                        tickProgressBar();
-                    }, 50);
                 }
             });
         }
@@ -718,9 +704,6 @@ $("#spotify-search").keypress(function(event) {
                 'Authorization': 'Bearer ' + $("#access_token").val()
             },
             success: function (response) {
-                setTimeout(function () {
-                    tickProgressBar();
-                }, 50);
             }
         });
     }

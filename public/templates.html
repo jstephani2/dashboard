@@ -77,9 +77,10 @@
             </div>
         </div>
         <div class="row-6 pt-5">
-            <div class="progress">
-                <div class="progress-bar progress-bar-striped bg-success progress-bar-animated" role="progressbar" id="progress" style="width: 25%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-            </div>
+                <div class="slidecontainer">
+                    <input type="range" min="1" max="1000" step="0.1" class="slider" id="progress-slider" onclick="clearInterval(refreshInterval); setTrackPosition($(this).val()); refreshInterval = setInterval(function () {refreshState();}, 500);">
+                </div>
+                <!-- <div class="progress-bar progress-bar-striped bg-success progress-bar-animated" role="progressbar" id="progress" style="width: 25%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div> -->
         </div>
     </div>
     <button style="display:none;" onclick="refreshState();">Refresh</button>
