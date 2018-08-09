@@ -129,8 +129,7 @@
             </div>
 
             <div class="col pt-2 form-group">
-                <input id="spotify-search" class="form-control" type="text" placeholder="Search Spotify"
-                       onsubmit="spotifySearch($(this).val());">
+                <input id="spotify-search" class="form-control" type="text" placeholder="Search Spotify" onsubmit="spotifySearch($(this).val());">
             </div>
             <div class="col pt-2 float-left pl-0">
                 <button class="btn bg-dark float-left text-white" type="submit" for="spotify-search"
@@ -342,30 +341,41 @@
 
     function clearQueue() {
         queue = [];
-        showQueue();
+        refreshQueue();
     }
 
     function showQueue() {
-        if ($("#popout-div").is(":hidden")) {
-            createPopoutElements(queue.length);
-            buttonList = $(".popout-button");
-            for (var i in buttonList) {
-                if (queue.length > i) {
-                    $("#URI-" + i).val(queue[i].uri);
-                    $("#popout-header" + i).text(queue[i].title);
-                    $("#artist-" + i).text(queue[i].artist);
-                    $("#queue-button-" + i).hide();
-                } else {
-                    $("#btn-group-" + i).hide();
-                }
-            }
+        refreshQueue();
+        showPopout();
+    }
 
-            togglePopout();
-            $(".popout-button").removeClass("w-75");
-            $(".popout-button").addClass("w-100");
-        } else {
-            togglePopout();
+    function refreshQueue() {
+        createPopoutElements(queue.length);
+        buttonList = $(".popout-button");
+        for (var i in buttonList) {
+            if (queue.length > i) {
+                $("#URI-" + i).val(queue[i].uri);
+                $("#popout-header" + i).text(queue[i].title);
+                $("#artist-" + i).text(queue[i].artist);
+                $("#queue-button-" + i).hide();
+            } else {
+                $("#btn-group-" + i).hide();
+            }
         }
+        $(".popout-button").removeClass("w-75");
+        $(".popout-button").addClass("w-100");
+    }
+
+    function showPopout() {
+        $("#loggedin").addClass('col-10');
+        $("#popout-div").addClass('col-2');
+        $("#popout-div").removeClass('d-none');
+    }
+
+    function hidePopout() {
+        $("#loggedin").removeClass('col-10');
+        $("#popout-div").removeClass('col-2');
+        $("#popout-div").addClass('d-none');
     }
 
     function toggleShuffle() {
@@ -376,11 +386,12 @@
             });
             showQueue();
             showQueue();
+            queue.sort(function(a,b){return 0.5 - Math.random()});
+            refreshQueue();
         } else {
             $("#shuffle").text("Shuffle");
             queue = backupQueue.slice(0);
-            showQueue();
-            showQueue();
+            refreshQueue();
         }
     }
 
@@ -418,7 +429,7 @@
             },
             success: function (response) {
                 if ($("#popout-div").is(":hidden")) {
-                    togglePopout();
+                    showPopout();
                 }
                 var elementList = $(".popout-header");
                 createPopoutElements(response.tracks.items.length, response);
@@ -608,13 +619,13 @@
 
     function tickProgressBar() {
         if ($("#isPlaying")) {
-            if ((parseInt($("#currentProgress").val()) + 50) <= parseInt($("#duration").val())) {
+            if ((parseInt($("#currentProgress").val()) + 500) <= parseInt($("#duration").val())) {
                 $("#currentProgress").val(parseInt($("#currentProgress").val()) + 50);
                 $("#progress").attr('style', "width: " + ($("#currentProgress").val() / $("#duration").val()) * 100 + "%");
             } else if (queue.length > 0) {
                 playSong(queue.shift().uri);
                 $("#currentProgress").val("0");
-                showQueue();
+                refreshQueue();
             }
         }
     }
@@ -637,8 +648,7 @@
     function nextSong() {
         if (queue.length > 0) {
             playSong(queue.shift().uri);
-            showQueue();
-            showQueue();
+            refreshQueue();
         } else {
             $.ajax({
                 type: 'POST',
