@@ -56,6 +56,20 @@
             width: 500px;
         }
 
+        #arrows_queue {
+            max-width: 36px;
+            max-height: 36px;
+            width: 36px;
+            height: 36px;
+            -ms-transform: translateY(10px); /* IE 9 */
+            -webkit-transform: translateY(10px); /* Safari */
+            transform: translateY(10px); /* Standard syntax */
+        }
+
+        #clock {
+            padding-right: 10px;
+        }
+
         @keyframes backgroundMove {
             from {
                 background-size: 100%;
@@ -63,14 +77,6 @@
             to {
                 background-size: 105%;
             }
-        }
-
-        #arrows_queue {
-            padding-bottom: 6px;
-            padding-right: 6px;
-            position: fixed;
-            bottom: 0;
-            right: 0;
         }
 
     </style>
@@ -123,16 +129,19 @@
             </div>
 
             <div class="col pt-2 form-group">
-                <input id="spotify-search" class="form-control" type="text" placeholder="Search Spotify" onsubmit="spotifySearch($(this).val());">
+                <input id="spotify-search" class="form-control" type="text" placeholder="Search Spotify"
+                       onsubmit="spotifySearch($(this).val());">
             </div>
             <div class="col pt-2 float-left pl-0">
                 <button class="btn bg-dark float-left text-white" type="submit" for="spotify-search"
                         onclick="spotifySearch($('#spotify-search').val());">Search
                 </button>
             </div>
-
-            <div class="col">
-                <h1 id="clock" class="text-right"></h1>
+            <div class="col-fluid">
+                <div class="row" style="padding-right: 30px">
+                    <h1 id="clock" class="text-right"></h1>
+                    <input type="image" id="arrows_queue" src="images/arrows.png" onclick="showQueue();"/>
+                </div>
             </div>
         </div>
         <div id="now-playing">
@@ -162,15 +171,6 @@
                 onmouseover="this.src='images/fast-forward-invert.png';" onmouseout="this.src='images/fast-forward.png';"
                 id="fast-forward"></img>
                 <button id="shuffle" type="button" class="btn btn-dark" onclick="toggleShuffle();">Shuffle</button>
-                <button type="button" id="showQueueButton" class="btn btn-dark" style="padding-left: 10px; display: none" onclick="showQueue();">
-                    Show Queue
-                </button>
-                <button type="button" id="clearQueueButton" class="btn btn-dark" style="padding-left: 10px; display: none" onclick="clearQueue();">
-                    Clear Queue
-                </button>
-            </div>
-            <div style="height: 48px">
-                <input type="image" id="arrows_queue" src="images/arrows.png" onclick="queueButtonToggle()"/>
             </div>
         </div>
         <div id="user-profile">
@@ -191,11 +191,11 @@
 <div id="templates"></div>
 
 <script>
-$("#spotify-search").keypress(function(event) {
-    if (event.which == 13) {
-        $("#spotify-search").submit();
-    }
-})
+    $("#spotify-search").keypress(function (event) {
+        if (event.which == 13) {
+            $("#spotify-search").submit();
+        }
+    })
 </script>
 
 <script>
@@ -336,8 +336,8 @@ $("#spotify-search").keypress(function(event) {
     })();
 
     function addToQueue(uri, title, artist) {
-        queue.push({'uri': uri,'title': title, 'artist': artist});
-        backupQueue.push({'uri': uri,'title': title, 'artist': artist});
+        queue.push({'uri': uri, 'title': title, 'artist': artist});
+        backupQueue.push({'uri': uri, 'title': title, 'artist': artist});
     }
 
     function clearQueue() {
@@ -368,21 +368,12 @@ $("#spotify-search").keypress(function(event) {
         }
     }
 
-    function queueButtonToggle() {
-        if($("#showQueueButton").is(":hidden")) {
-            $("#showQueueButton").show();
-            $("#clearQueueButton").show();
-        } else {
-            $("#showQueueButton").hide();
-            $("#clearQueueButton").hide();
-        }
-
-    }
-
     function toggleShuffle() {
         if ($("#shuffle").text() == "Shuffle") {
             $("#shuffle").text("Unshuffle");
-            queue.sort(function(a,b){return 0.5 - Math.random()});
+            queue.sort(function (a, b) {
+                return 0.5 - Math.random()
+            });
             showQueue();
             showQueue();
         } else {
@@ -457,7 +448,7 @@ $("#spotify-search").keypress(function(event) {
             $('#song-info-bottom').hide();
             $('#controls-div').removeClass('col-7');
             $("#album-art").attr('src', '');
-            $('#album-art-2').attr('src','');
+            $('#album-art-2').attr('src', '');
             $('#loggedin').hide();
             $('#login').show();
         }
