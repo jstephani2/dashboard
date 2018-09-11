@@ -1,21 +1,18 @@
+# Spotify Dashboard
+***On-Going Project***
+
+Project started by Josh Stepahni (UW-Madison, CS & Astrophysics) and continued with his great friend Ben Giese (MSOE, SE). This was a "play around" project that utilizes the *Spotify Web-API* and a Front-End UI to manipulate and control a person's Spotify Account. We also added Search and Queue functionality that works apart from Spotify. 
+
+### Dashboard: 
+![alt text](https://github.com/jstephani2/dashboard/tree/master/public/images/README/Dashboard.png)
+
+### Notes:
+
 **Queue Dropdown**
-Make Buttons in Queue into Dropdowns
 Onclick, Dropdown show items.
 - Remove - removeFromQueue(index number)
 - Play Next - (smart - "Multiple Play Nexts" line up) add first on dropdown, then on search results.
 
-
-Queue vs Playlist Queue.
-Priority Queue is Queue
-Secondary is the 'playlist Queue' that is additional.
-
 **Make UI Better**
-- Move Queue Buttons
-- "Double Arrow Thing" in corner to bring out buttons.  (CSS Animations)
 - Make search results and queue different colors. (Use JQuery to select all and change style)
 - Dashboard - Large Track Text displayed in dashboard.
-
-**Shuffle**
-- Be able to toggle
-- Revert back
-
