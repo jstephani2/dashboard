@@ -1,10 +1,10 @@
 # Spotify Dashboard
 ***On-Going Project***
 
-Project started by Josh Stepahni (UW-Madison, CS & Astrophysics) and continued with his great friend Ben Giese (MSOE, SE). This was a "play around" project that utilizes the *Spotify Web-API* and a Front-End UI to manipulate and control a person's Spotify Account. We also added Search and Queue functionality that works apart from Spotify. 
+Project started by Josh Stepahni (UW-Madison, CS & Astrophysics) and continued with his great friend Ben Giese (MSOE, SE). This was a "play around" project that utilizes the *Spotify Web-API* and a Front-End UI to manipulate and control a person's Spotify Account. We also added Search, Queue, and an Interactive Progress Bar functionality that works apart from Spotify. 
 
 ### Dashboard: 
-![alt text](https://github.com/jstephani2/dashboard/tree/master/public/images/README/Dashboard.png)
+![alt text](https://github.com/jstephani2/dashboard/blob/master/public/images/README/Dashboard.png)
 
 ### Notes:
 
